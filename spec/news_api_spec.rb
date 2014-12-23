@@ -4,7 +4,7 @@ include Rack::Test::Methods
 
 describe Sinatra::Application do
   def app
-    Rack::Lint.new(Sinatra::Application)
+    Rack::Lint.new(NewsApi)
   end
 
   describe 'stories' do

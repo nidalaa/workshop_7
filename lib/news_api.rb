@@ -1,34 +1,13 @@
-require 'sinatra'
+require 'sinatra/base'
 require 'json'
 
-class NewsApi
-  def initialize
-    @data = { stories:
-                [ { id: "1", title: "Lorem ipsum", url: "http://www.lipsum.com/" },
-                { id: "2", title: "Lorem", url: "http://www.lorem.com/" } ]
-            }
-  end
+require_relative 'news_api/stories'
+require_relative 'news_api/votes'
+require_relative 'news_api/users'
 
-  def all_stories
-    @data
-  end
-
-  def find_story(id)
-    @data[:stories].select { |story| story[:id] == id }.first
-  end
+class NewsApi < Sinatra::Base
+  run! if app_file == $0
 end
 
 
-news_api = NewsApi.new
 
-get '/stories' do
-  news_api.all_stories.to_json
-end
-
-get '/stories/:id' do
-  if story = news_api.find_story(params['id'])
-    story.to_json
-  else
-    halt 404
-  end
-end
