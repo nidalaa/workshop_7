@@ -4,7 +4,7 @@ include Rack::Test::Methods
 
 describe NewsApi do
   def app
-    NewsApi.new
+    Rack::Lint.new(NewsApi.new)
   end
 
   it 'response with success' do
