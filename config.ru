@@ -1,2 +1,2 @@
 require './lib/news_api'
-run NewsApi
+run NewsApi::App

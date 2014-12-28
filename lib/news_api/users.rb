@@ -1,2 +1,4 @@
-class NewsApi < Sinatra::Base
+module NewsApi
+  class Users < Sinatra::Base
+  end
 end
