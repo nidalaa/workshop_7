@@ -51,7 +51,7 @@ describe Sinatra::Application do
       end
 
       context 'when story cannot be created' do
-        it 'returns 400 status code'
+        it 'returns 422 status code'
 
         it 'returns error list'
       end
@@ -63,7 +63,7 @@ describe Sinatra::Application do
       end
 
       context 'when story cannot be updated' do
-        it 'returns 400 status code'
+        it 'returns 422 status code'
 
         it 'returns error list'
       end
@@ -83,7 +83,7 @@ describe Sinatra::Application do
       end
 
       context 'when vote cannot be added' do
-        it 'returns 400 status code'
+        it 'returns 422 status code'
 
         it 'returns error list'
       end
@@ -111,7 +111,7 @@ describe Sinatra::Application do
       end
 
       context 'when user cannot be created' do
-        it 'returns 400 status code'
+        it 'returns 422 status code'
 
         it 'returns error list'
       end
