@@ -75,11 +75,17 @@ describe Sinatra::Application do
   end
 
   describe 'votes' do
-    describe 'POST `/stories/{id}/votes`' do
+    describe 'PUT `/stories/{id}/votes`' do
       context 'when vote can be added' do
         it 'returns 201 status code for upvoting'
 
         it 'returns 201 status code for downvoting'
+      end
+
+      context 'when vote can be changed' do
+        it 'returns 200 status code for upvoting'
+
+        it 'returns 200 status code for downvoting'
       end
 
       context 'when vote cannot be added' do
