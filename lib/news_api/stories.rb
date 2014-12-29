@@ -1,13 +1,13 @@
-require_relative '../models/story_storage'
+require_relative '../models/story'
 
 module NewsApi
   class Stories < Sinatra::Base
     get '/stories' do
-      StoryStorage.all_stories.to_json
+      Story.all.to_json
     end
 
     get '/stories/:id' do
-      if story = StoryStorage.find_story(params['id'])
+      if story = Story.find_by(id: params['id'])
         story.to_json
       else
         halt 404

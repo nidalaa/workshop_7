@@ -7,7 +7,10 @@ describe Sinatra::Application do
     Rack::Lint.new(NewsApi::App)
   end
 
-  before { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
+  before(:each) do
+    Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/')
+    Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/')
+  end
 
   describe 'stories' do
     describe 'GET `/stories`' do
@@ -20,7 +23,7 @@ describe Sinatra::Application do
       it 'returns list of existing stories' do
         expected_titles = ["Lorem ipsum", "Lorem"]
 
-        stories = JSON.parse(last_response.body)["stories"]
+        stories = JSON.parse(last_response.body)
         expect(stories.map { |story| story["title"] }).to eq(expected_titles)
       end
     end
