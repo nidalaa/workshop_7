@@ -7,7 +7,7 @@ describe Sinatra::Application do
     Rack::Lint.new(NewsApi::App)
   end
 
-  #before { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
+  before { Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/') }
 
   describe 'stories' do
     describe 'GET `/stories`' do
