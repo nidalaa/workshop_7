@@ -82,7 +82,7 @@ describe Sinatra::Application do
   end
 
   describe 'votes' do
-    describe 'PUT `/stories/{id}/votes`' do
+    describe 'PUT `/stories/{id}/vote`' do
       context 'when vote can be added' do
         it 'returns 201 status code for upvoting'
 
@@ -106,7 +106,7 @@ describe Sinatra::Application do
       end
     end
 
-    describe 'DELETE `/stories/{id}/votes/{id}`' do
+    describe 'DELETE `/stories/{id}/vote`' do
       context 'when vote is successfully deleted' do
         it 'returns 200 status code'
       end
