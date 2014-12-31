@@ -52,15 +52,37 @@ describe Sinatra::Application do
 
     describe 'POST `/stories`' do
       context 'when story is successfully created' do
-        it 'returns 201 status code'
+        before do
+          story_data = { title: 'Title', url: 'http://www.url.com/' }
+          post '/stories', story_data.to_json
+        end
 
-        it 'returns location header with new story'
+        it 'returns 201 status code' do
+          expect(last_response.status).to eq 201
+        end
+
+        it 'returns location header with new story' do
+          expect(last_response.headers['location']).to eq '/stories/3'
+        end
+
+        it 'adds record to database' do
+          expect(Story.all.count).to eq(3)
+        end
       end
 
       context 'when story cannot be created' do
-        it 'returns 422 status code'
+        before do
+          story_data = { title: "title"}
+          post '/stories', story_data.to_json
+        end
 
-        it 'returns error list'
+        it 'returns 422 status code' do
+          expect(last_response.status).to eq 422
+        end
+
+        it 'returns error list' do
+          expect(last_response.body).to include '"url":["can\'t be blank"]'
+        end
       end
     end
 
