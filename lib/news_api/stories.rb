@@ -13,6 +13,19 @@ module NewsApi
         halt 404
       end
     end
+
+    post "/stories" do
+      new_story = Story.create(JSON.parse(request.body.read))
+
+      if new_story.save
+        status 201
+        headers \
+          "location" => "/stories/#{new_story.id}"
+      else
+        status 422
+        { errors: new_story.errors }.to_json
+      end
+    end
   end
 end
 
