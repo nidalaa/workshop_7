@@ -62,7 +62,7 @@ describe Sinatra::Application do
         end
 
         it 'returns location header with new story' do
-          expect(last_response.headers['location']).to eq '/stories/3'
+          expect(last_response.headers['Location']).to eq '/stories/3'
         end
 
         it 'adds record to database' do
@@ -81,7 +81,9 @@ describe Sinatra::Application do
         end
 
         it 'returns error list' do
-          expect(last_response.body).to include '"url":["can\'t be blank"]'
+          parsed_response = JSON.parse(last_response.body)
+          expect(parsed_response.keys).to include 'errors'
+          expect(parsed_response['errors'].keys).to include 'url'
         end
       end
     end

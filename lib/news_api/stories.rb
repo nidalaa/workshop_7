@@ -20,7 +20,7 @@ module NewsApi
       if new_story.save
         status 201
         headers \
-          "location" => "/stories/#{new_story.id}"
+          "Location" => "/stories/#{new_story.id}"
       else
         status 422
         { errors: new_story.errors }.to_json
