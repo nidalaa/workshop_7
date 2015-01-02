@@ -14,7 +14,7 @@ module NewsApi
       end
     end
 
-    post "/stories" do
+    post '/stories' do
       new_story = Story.create(JSON.parse(request.body.read))
 
       if new_story.save
