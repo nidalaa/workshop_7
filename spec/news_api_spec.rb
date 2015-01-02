@@ -152,6 +152,10 @@ describe Sinatra::Application do
         it 'returns 201 status code' do
           expect(last_response.status).to eq 201
         end
+
+        it 'automatically sets user session cookie' do
+          expect(last_request.env['rack.session']['user_id']).to eq 1
+        end
       end
 
       context 'when user cannot be created' do
@@ -161,7 +165,7 @@ describe Sinatra::Application do
         end
 
         it 'returns 422 status code' do
-          expect(last_response.status).to eq 201
+          expect(last_response.status).to eq 422
         end
 
         it 'returns error list' do
@@ -169,6 +173,49 @@ describe Sinatra::Application do
           expect(parsed_response.keys).to include 'errors'
           expect(parsed_response['errors'].keys).to include 'password'
         end
+      end
+    end
+
+    describe 'POST `/users/login`' do
+      context 'with correct user data' do
+        before do
+          User.create!(id: 1, username: 'user', password: 'pass')
+          login_data = { username: 'user', password: 'pass' }.to_json
+          post 'users/login', login_data
+        end
+
+        after { User.find(1).delete }
+
+        it 'returns 201 status code' do
+          expect(last_response.status).to eq 201
+        end
+
+        it 'sets user session cookie' do
+          # it should be hashed but for now I prefer to make it as simple as possible
+          expect(last_request.env['rack.session']['user_id']).to eq 1
+        end
+      end
+
+      context 'with incorrect user data' do
+        before do
+          login_data = { username: 'user', password: 'pass123' }.to_json
+          post 'users/login', login_data
+        end
+
+        it 'returns 403 status code' do
+          expect(last_response.status).to eq 403
+        end
+
+        it 'leaves user session empty' do
+          expect(last_request.env['rack.session']['user_id']).to be_nil
+        end
+      end
+    end
+
+    describe 'DELETE `/users/logout`' do
+      it 'removes user session' do
+        delete 'users/logout'
+        expect(last_request.env['rack.session']['user_id']).to be_nil
       end
     end
   end
