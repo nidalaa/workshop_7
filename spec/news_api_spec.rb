@@ -144,13 +144,31 @@ describe Sinatra::Application do
   describe 'users' do
     describe 'POST `/users`' do
       context 'when user is successfully created' do
-        it 'returns 201 status code'
+        before do
+          user_data = { username: "user", password: "secret_password" }
+          post '/users', user_data.to_json
+        end
+
+        it 'returns 201 status code' do
+          expect(last_response.status).to eq 201
+        end
       end
 
       context 'when user cannot be created' do
-        it 'returns 422 status code'
+        before do
+          user_data = { username: "user" }
+          post '/users', user_data.to_json
+        end
 
-        it 'returns error list'
+        it 'returns 422 status code' do
+          expect(last_response.status).to eq 201
+        end
+
+        it 'returns error list' do
+          parsed_response = JSON.parse(last_response.body)
+          expect(parsed_response.keys).to include 'errors'
+          expect(parsed_response['errors'].keys).to include 'password'
+        end
       end
     end
   end
