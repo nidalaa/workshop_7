@@ -1,7 +1,10 @@
 require_relative '../models/story'
+require_relative 'helpers'
 
 module NewsApi
   class Stories < Sinatra::Base
+    include NewsApi::Helpers
+
     get '/stories' do
       Story.all.to_json
     end
@@ -15,8 +18,10 @@ module NewsApi
     end
 
     post '/stories' do
-      new_story = Story.create(JSON.parse(request.body.read))
+      protected!
+      users_only!
 
+      new_story = Story.create(JSON.parse(request.body.read).merge(user_id: session['user_id']))
       if new_story.save
         status 201
         headers \
