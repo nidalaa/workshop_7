@@ -54,62 +54,45 @@ describe Sinatra::Application do
 
     describe 'POST `/stories`' do
       context 'with authenticated user' do
-        before { authorize 'admin', 'secret' }
+        before { authorize 'user', 'pass' }
 
-        context 'with logged-in user' do
-          context 'when story is successfully created' do
-            before do
-              story_data = { title: 'Title', url: 'http://www.url.com/' }
-              post '/stories', story_data.to_json, 'rack.session' => { :user_id => '1' }
-            end
-
-            it 'returns 201 status code' do
-              expect(last_response.status).to eq 201
-            end
-
-            it 'returns location header with new story' do
-              expect(last_response.headers['Location']).to eq '/stories/3'
-            end
-
-            it 'adds record to database' do
-              expect(Story.all.count).to eq(3)
-            end
-
-            it 'adds record for logged-in user' do
-              expect(Story.last.user_id).to eq(1)
-            end
-          end
-
-          context 'when story cannot be created' do
-            before do
-              story_data = { title: "title"}
-              post '/stories', story_data.to_json, 'rack.session' => { :user_id => '1' }
-            end
-
-            it 'returns 422 status code' do
-              expect(last_response.status).to eq 422
-            end
-
-            it 'returns error list' do
-              parsed_response = JSON.parse(last_response.body)
-              expect(parsed_response.keys).to include 'errors'
-              expect(parsed_response['errors'].keys).to include 'url'
-            end
-          end
-        end
-
-        context 'without logged-in user' do
+        context 'when story is successfully created' do
           before do
             story_data = { title: 'Title', url: 'http://www.url.com/' }
             post '/stories', story_data.to_json
           end
 
-          it 'returns 403 status code' do
-            expect(last_response.status).to eq 403
+          it 'returns 201 status code' do
+            expect(last_response.status).to eq 201
           end
 
-          it 'returns location header with login path' do
-            expect(last_response.headers['Location']).to eq '/users/login'
+          it 'returns location header with new story' do
+            expect(last_response.headers['Location']).to eq '/stories/3'
+          end
+
+          it 'adds record to database' do
+            expect(Story.all.count).to eq(3)
+          end
+
+          it 'adds record for authenticated user' do
+            expect(Story.last.user_id).to eq(1)
+          end
+        end
+
+        context 'when story cannot be created' do
+          before do
+            story_data = { title: "title"}
+            post '/stories', story_data.to_json
+          end
+
+          it 'returns 422 status code' do
+            expect(last_response.status).to eq 422
+          end
+
+          it 'returns error list' do
+            parsed_response = JSON.parse(last_response.body)
+            expect(parsed_response.keys).to include 'errors'
+            expect(parsed_response['errors'].keys).to include 'url'
           end
         end
       end
@@ -118,14 +101,14 @@ describe Sinatra::Application do
         it 'returns 401 status code for wrong credentials' do
           authorize 'admin', 'wrong_pass'
           story_data = { title: 'Title', url: 'http://www.url.com/' }
-          post '/stories', story_data.to_json, 'rack.session' => { :user_id => '1' }
+          post '/stories', story_data.to_json
 
           expect(last_response.status).to eq 401
         end
 
         it 'returns 401 status code for request with empty credentials' do
           story_data = { title: 'Title', url: 'http://www.url.com/' }
-          post '/stories', story_data.to_json, 'rack.session' => { :user_id => '1' }
+          post '/stories', story_data.to_json
 
           expect(last_response.status).to eq 401
         end
@@ -196,10 +179,6 @@ describe Sinatra::Application do
         it 'returns 201 status code' do
           expect(last_response.status).to eq 201
         end
-
-        it 'automatically sets user session cookie' do
-          expect(last_request.env['rack.session']['user_id']).to eq 2
-        end
       end
 
       context 'when user cannot be created' do
@@ -217,45 +196,6 @@ describe Sinatra::Application do
           expect(parsed_response.keys).to include 'errors'
           expect(parsed_response['errors'].keys).to include 'password'
         end
-      end
-    end
-
-    describe 'POST `/users/login`' do
-      context 'with correct user data' do
-        before do
-          login_data = { username: 'user', password: 'pass' }.to_json
-          post 'users/login', login_data
-        end
-        it 'returns 201 status code' do
-          expect(last_response.status).to eq 201
-        end
-
-        it 'sets user session cookie' do
-          # it should be hashed but for now I prefer to make it as simple as possible
-          expect(last_request.env['rack.session']['user_id']).to eq 1
-        end
-      end
-
-      context 'with incorrect user data' do
-        before do
-          login_data = { username: 'user', password: 'wrong_pass' }.to_json
-          post 'users/login', login_data
-        end
-
-        it 'returns 403 status code' do
-          expect(last_response.status).to eq 403
-        end
-
-        it 'leaves user session empty' do
-          expect(last_request.env['rack.session']['user_id']).to be_nil
-        end
-      end
-    end
-
-    describe 'DELETE `/users/logout`' do
-      it 'removes user session' do
-        delete 'users/logout'
-        expect(last_request.env['rack.session']['user_id']).to be_nil
       end
     end
   end

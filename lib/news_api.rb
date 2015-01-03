@@ -11,8 +11,6 @@ module NewsApi
   class App < Sinatra::Base
     ::Environment.db_connect(settings.environment)
 
-    enable :sessions
-
     use NewsApi::Stories
     use NewsApi::Votes
     use NewsApi::Users

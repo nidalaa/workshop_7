@@ -19,9 +19,8 @@ module NewsApi
 
     post '/stories' do
       protected!
-      users_only!
 
-      new_story = Story.create(JSON.parse(request.body.read).merge(user_id: session['user_id']))
+      new_story = Story.create(JSON.parse(request.body.read).merge(user_id: @user.id))
       if new_story.save
         status 201
         headers \

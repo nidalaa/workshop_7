@@ -8,22 +8,17 @@ module NewsApi
       halt 401, "Not authorized\n"
     end
 
-    def users_only!
-      return if logged_in?
-      headers['Location'] = '/users/login'
-      halt 403, "Loggin-in is neccessary\n"
-    end
-
     def authorized?
       auth ||=  Rack::Auth::Basic::Request.new(request.env)
-      auth.provided? and auth.basic? and auth.credentials and auth.credentials == ['admin', 'secret']
+      return unless auth.provided? and auth.basic? and auth.credentials
+
+      username, password = auth.credentials
+      find_user(username, password)
     end
 
-    def logged_in?
-      return false unless session['user_id']
-
-      user ||= User.find(session['user_id'])
-      user
+    def find_user(username, password)
+      @user ||= User.where(username: username, password: password).first
+      @user
     end
   end
 end
