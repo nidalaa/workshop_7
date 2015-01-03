@@ -12,6 +12,8 @@ describe Sinatra::Application do
 
     Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/', user_id: 1)
     Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/', user_id: 1)
+
+    Vote.create!(id: 1, user_id: 1, story_id: 2, point: 1)
   end
 
   describe 'stories' do
@@ -134,28 +136,113 @@ describe Sinatra::Application do
 
   describe 'votes' do
     describe 'PUT `/stories/{id}/vote`' do
-      context 'when vote can be added' do
-        it 'returns 201 status code for upvoting'
+      context 'with authenticated user' do
+        before { authorize 'user', 'pass' }
 
-        it 'returns 201 status code for downvoting'
+        context 'when vote can be added' do
+          context 'upvoting' do
+            before do
+              vote_data = { point: 1 }
+              put '/stories/1/vote', vote_data.to_json
+            end
+
+            it 'returns 201 status code' do
+              expect(last_response.status).to eq 201
+            end
+
+            it 'increase score by one' do
+              parsed_response = JSON.parse(last_response.body)
+              expect(parsed_response['score']).to eq 1
+            end
+          end
+
+          context 'downvoting' do
+            before do
+              vote_data = { point: -1 }
+              put '/stories/1/vote', vote_data.to_json
+            end
+
+            it 'returns 201 status code' do
+              expect(last_response.status).to eq 201
+            end
+
+            it 'decrease score by one' do
+              parsed_response = JSON.parse(last_response.body)
+              expect(parsed_response['score']).to eq -1
+            end
+          end
+        end
+
+        context 'when vote for particular user already exists' do
+          context 'upvoting' do
+            before do
+              vote_data = { point: 1 }
+              put '/stories/2/vote', vote_data.to_json
+            end
+
+            it 'returns 200 status code' do
+              expect(last_response.status).to eq 200
+            end
+
+            it 'does not increase score' do
+              parsed_response = JSON.parse(last_response.body)
+              expect(parsed_response['score']).to eq 1
+            end
+          end
+
+          context 'downvoting' do
+            before do
+              vote_data = { point: -1 }
+              put '/stories/2/vote', vote_data.to_json
+            end
+
+            it 'returns 200 status code' do
+              expect(last_response.status).to eq 200
+            end
+
+            it 'decrease score by two' do
+              parsed_response = JSON.parse(last_response.body)
+              expect(parsed_response['score']).to eq -1
+            end
+          end
+        end
+
+        context 'when vote cannot be added' do
+          before do
+            vote_data = { point: 99 }
+            put '/stories/1/vote', vote_data.to_json
+          end
+
+          it 'returns 422 status code' do
+            expect(last_response.status).to eq 422
+          end
+
+          it 'returns error list' do
+            parsed_response = JSON.parse(last_response.body)
+            expect(parsed_response.keys).to include 'errors'
+            expect(parsed_response['errors'].keys).to include 'point'
+          end
+        end
+
+        context 'when story does not exist' do
+          it 'returns 404 status code' do
+            vote_data = { point: 1 }
+            put '/stories/999/vote', vote_data.to_json
+
+            expect(last_response.status).to eq 404
+          end
+        end
       end
 
-      context 'when vote can be changed' do
-        it 'returns 200 status code for upvoting'
+      context 'without authenticated user' do
+        it 'returns 401 status code' do
+          vote_data = { point: 1 }
+          put '/stories/1/vote', vote_data.to_json
 
-        it 'returns 200 status code for downvoting'
-      end
-
-      context 'when vote cannot be added' do
-        it 'returns 422 status code'
-
-        it 'returns error list'
-      end
-
-      context 'when story does not exist' do
-        it 'returns 404 status code'
+          expect(last_response.status).to eq 401
       end
     end
+  end
 
     describe 'DELETE `/stories/{id}/vote`' do
       context 'when vote is successfully deleted' do
