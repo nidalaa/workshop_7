@@ -2,7 +2,7 @@ require_relative '../models/user'
 
 module NewsApi
   module Helpers
-    def protected!
+    def authenticate!
       return if authorized?
       headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
       halt 401, "Not authorized\n"

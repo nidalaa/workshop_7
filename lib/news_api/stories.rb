@@ -18,7 +18,7 @@ module NewsApi
     end
 
     post '/stories' do
-      protected!
+      authenticate!
 
       new_story = Story.create(JSON.parse(request.body.read).merge(user_id: @user.id))
       if new_story.save
