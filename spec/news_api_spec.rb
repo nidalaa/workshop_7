@@ -245,17 +245,47 @@ describe Sinatra::Application do
           put '/stories/1/vote', vote_data.to_json
 
           expect(last_response.status).to eq 401
+        end
       end
     end
-  end
 
     describe 'DELETE `/stories/{id}/vote`' do
-      context 'when vote is successfully deleted' do
-        it 'returns 200 status code'
+      context 'with authenticated user' do
+        before { authorize 'user', 'pass' }
+
+        context 'when vote is successfully deleted' do
+          before { delete '/stories/2/vote' }
+
+          it 'returns 200 status code' do
+            expect(last_response.status).to eq 200
+          end
+
+          it 'changes score for story' do
+            parsed_response = JSON.parse(last_response.body)
+            expect(parsed_response['score']).to eq 0
+          end
+        end
+
+        context 'when vote does not exist' do
+          it 'returns 404 status code' do
+            delete '/stories/1/vote'
+            expect(last_response.status).to eq 404
+          end
+        end
+
+        context 'when story does not exist' do
+          it 'returns 404 status code' do
+            delete '/stories/999/vote'
+            expect(last_response.status).to eq 404
+          end
+        end
       end
 
-      context 'when story does not exist' do
-        it 'returns 404 status code'
+      context 'without authenticated user' do
+        it 'returns 401 status code' do
+          delete '/stories/2/vote'
+          expect(last_response.status).to eq 401
+        end
       end
     end
   end

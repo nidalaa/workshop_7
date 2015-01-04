@@ -23,5 +23,20 @@ module NewsApi
       end
     end
 
+    delete '/stories/:id/vote' do
+      authenticate!
+      halt 404 unless Story.find_by(id: params[:id])
+
+      vote = Vote.find_by(user_id: @user.id, story_id: params[:id])
+
+      if vote
+        vote.destroy
+        status 200
+        { score: Vote.by_story(params[:id]).sum(:point) }.to_json
+      else
+        halt 404
+      end
+    end
+
   end
 end
