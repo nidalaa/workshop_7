@@ -4,13 +4,12 @@ module NewsApi
   module Helpers
     def authenticate!
       return if authorized?
-      headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
-      halt 401, "Not authorized\n"
+      halt 401, {'WWW-Authenticate' => 'Basic realm="Restricted Area"'}, 'Not authorized\n'
     end
 
     def authorized?
       auth ||=  Rack::Auth::Basic::Request.new(request.env)
-      return unless auth.provided? and auth.basic? and auth.credentials
+      return unless auth.provided? && auth.basic? && auth.credentials
 
       username, password = auth.credentials
       find_user(username, password)

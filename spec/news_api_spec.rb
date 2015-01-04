@@ -17,6 +17,8 @@ describe Sinatra::Application do
   end
 
   describe 'stories' do
+    let (:story_data) { {title: 'Title', url: 'http://www.url.com/'} }
+
     describe 'GET `/stories`' do
       before { get '/stories' }
 
@@ -60,7 +62,6 @@ describe Sinatra::Application do
 
         context 'when story is successfully created' do
           before do
-            story_data = { title: 'Title', url: 'http://www.url.com/' }
             post '/stories', story_data.to_json
           end
 
@@ -100,16 +101,20 @@ describe Sinatra::Application do
       end
 
       context 'without authenticated user' do
+        it 'adds `WWW-Authenticate` header to response' do
+          post '/stories', story_data.to_json
+
+          expect(last_response.headers['WWW-Authenticate']).to eq 'Basic realm="Restricted Area"'
+        end
+
         it 'returns 401 status code for wrong credentials' do
           authorize 'admin', 'wrong_pass'
-          story_data = { title: 'Title', url: 'http://www.url.com/' }
           post '/stories', story_data.to_json
 
           expect(last_response.status).to eq 401
         end
 
         it 'returns 401 status code for request with empty credentials' do
-          story_data = { title: 'Title', url: 'http://www.url.com/' }
           post '/stories', story_data.to_json
 
           expect(last_response.status).to eq 401
