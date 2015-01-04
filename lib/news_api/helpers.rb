@@ -20,5 +20,9 @@ module NewsApi
       @user = nil unless @user.try(:decrypted_password) == password
       @user
     end
+
+    def respond_with_xml?
+      request.accept.first.to_s == 'application/xml'
+    end
   end
 end

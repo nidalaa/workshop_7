@@ -33,6 +33,12 @@ describe Sinatra::Application do
         stories = JSON.parse(last_response.body)
         expect(stories.map { |story| story["title"] }).to eq(expected_titles)
       end
+
+      it 'returns xml for `application/xml` Accept header' do
+        header 'Accept', 'application/xml'
+        get '/stories'
+        expect(last_response.body).to include '</stories>'
+      end
     end
 
     describe 'GET `/stories/{id}`' do
@@ -46,6 +52,14 @@ describe Sinatra::Application do
         it 'returns story`s details' do
           story = JSON.parse(last_response.body)
           expect(story["title"]).to eq("Lorem ipsum")
+        end
+      end
+
+      context 'with `application/xml` Accept header' do
+        it 'returns xml' do
+          header 'Accept', 'application/xml'
+          get '/stories/1'
+          expect(last_response.body).to include '</story>'
         end
       end
 
@@ -97,6 +111,15 @@ describe Sinatra::Application do
             parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'url'
+          end
+        end
+
+        context 'with `application/xml` Accept header' do
+          it 'returns xml' do
+            story_data = { title: "title"}
+            header 'Accept', 'application/xml'
+            post '/stories', story_data.to_json
+            expect(last_response.body).to include '</errors>'
           end
         end
       end
@@ -164,6 +187,14 @@ describe Sinatra::Application do
             parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'not_owner'
+          end
+        end
+
+        context 'with `application/xml` Accept header' do
+          it 'returns xml' do
+            header 'Accept', 'application/xml'
+            patch '/stories/2', story_updated_data.to_json
+            expect(last_response.body).to include '</errors>'
           end
         end
 

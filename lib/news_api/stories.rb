@@ -6,12 +6,12 @@ module NewsApi
     include NewsApi::Helpers
 
     get '/stories' do
-      Story.all.to_json
+      respond_with_xml? ? Story.all.to_xml : Story.all.to_json
     end
 
     get '/stories/:id' do
       if story = Story.find_by(id: params[:id])
-        story.to_json
+        respond_with_xml? ? story.to_xml : story.to_json
       else
         halt 404
       end
@@ -28,7 +28,7 @@ module NewsApi
           "Location" => "/stories/#{new_story.id}"
       else
         status 422
-        { errors: new_story.errors }.to_json
+        respond_with_xml? ? { errors: new_story.errors }.to_xml : { errors: new_story.errors }.to_json
       end
     end
 
@@ -43,14 +43,15 @@ module NewsApi
         status 200
       else
         status 422
-        { errors: story.errors }.to_json
+        respond_with_xml? ? { errors: story.errors }.to_xml : { errors: story.errors }.to_json
       end
     end
 
     def can_update?(story)
       halt 404 unless story
       if story.user_id != @user.id
-        halt 422, {}, { errors: { not_owner: 'You can update only your own stories' } }.to_json
+        errors = { errors: { not_owner: 'You can update only your own stories' } }
+        halt 422, {}, respond_with_xml? ? errors.to_xml :  errors.to_json
       end
     end
   end
