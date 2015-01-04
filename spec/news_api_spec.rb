@@ -8,7 +8,7 @@ describe Sinatra::Application do
   end
 
   before(:each) do
-    User.create!(id: 1, username: 'user', password: 'pass')
+    User.create!(id: 1, username: 'user', decrypted_password: 'pass')
 
     Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/', user_id: 1)
     Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/', user_id: 1)
@@ -259,7 +259,7 @@ describe Sinatra::Application do
     describe 'POST `/users`' do
       context 'when user is successfully created' do
         before do
-          user_data = { username: "user", password: "secret_password" }
+          user_data = { username: "user", decrypted_password: "secret_password" }
           post '/users', user_data.to_json
         end
 
