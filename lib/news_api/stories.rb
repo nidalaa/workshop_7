@@ -47,6 +47,14 @@ module NewsApi
       end
     end
 
+    get '/stories/:id/url' do
+      if story = Story.find_by(id: params[:id])
+        redirect story.url
+      else
+        halt 404
+      end
+    end
+
     def can_update?(story)
       halt 404 unless story
       if story.user_id != @user.id

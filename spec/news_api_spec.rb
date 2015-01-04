@@ -71,6 +71,24 @@ describe Sinatra::Application do
       end
     end
 
+    describe 'GET `/stories/:id/url`' do
+      context 'when story exists' do
+        it 'returns 200 status code' do
+          get '/stories/1/url'
+          expect(last_response).to be_redirect   # This works, but I want it to be more specific
+          follow_redirect!
+          expect(last_request.url).to eq 'http://www.lipsum.com/'
+        end
+      end
+
+      context 'when story does not exist' do
+        it 'returns 404 status code' do
+          get '/stories/9999'
+          expect(last_response.status).to eq 404
+        end
+      end
+    end
+
     describe 'POST `/stories`' do
       context 'with authenticated user' do
         before { authorize 'user', 'pass' }
