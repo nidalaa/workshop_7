@@ -11,13 +11,14 @@ describe Sinatra::Application do
     User.create!(id: 1, username: 'user', decrypted_password: 'pass')
 
     Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/', user_id: 1)
-    Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/', user_id: 1)
+    Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/', user_id: 2)
 
     Vote.create!(id: 1, user_id: 1, story_id: 2, point: 1)
   end
 
   describe 'stories' do
-    let (:story_data) { {title: 'Title', url: 'http://www.url.com/'} }
+    let (:story_data) { { title: 'Title', url: 'http://www.url.com/' } }
+    let (:story_updated_data) { { title: 'Edited title' } }
 
     describe 'GET `/stories`' do
       before { get '/stories' }
@@ -123,18 +124,63 @@ describe Sinatra::Application do
     end
 
     describe 'PATCH `/stories/{id}`' do
-      context 'when story is successfully updated' do
-        it 'returns 200 status code'
+      context 'with authenticated user' do
+        before { authorize 'user', 'pass' }
+
+        context 'when story is successfully updated' do
+          before { patch '/stories/1', story_updated_data.to_json }
+
+          it 'returns 200 status code' do
+            expect(last_response.status).to eq 200
+          end
+
+          it 'changes provided property' do
+            expect(Story.find(1).title).to eq 'Edited title'
+          end
+        end
+
+        context 'when story cannot be updated' do
+          before { patch '/stories/1', { title: nil }.to_json}
+
+          it 'returns 422 status code' do
+            expect(last_response.status).to eq 422
+          end
+
+          it 'returns error list' do
+            parsed_response = JSON.parse(last_response.body)
+            expect(parsed_response.keys).to include 'errors'
+            expect(parsed_response['errors'].keys).to include 'title'
+          end
+        end
+
+        context 'when story is created by another user' do
+          before { patch '/stories/2', story_updated_data.to_json }
+
+          it 'returns 422 status code' do
+            expect(last_response.status).to eq 422
+          end
+
+          it 'returns error list' do
+            parsed_response = JSON.parse(last_response.body)
+            expect(parsed_response.keys).to include 'errors'
+            expect(parsed_response['errors'].keys).to include 'not_owner'
+          end
+        end
+
+        context 'when story does not exist' do
+          it 'returns 404 status code' do
+            patch '/stories/999', story_updated_data.to_json
+            expect(last_response.status).to eq 404
+          end
+        end
       end
 
-      context 'when story cannot be updated' do
-        it 'returns 422 status code'
+      context 'without authenticated user' do
+        it 'returns 401 status code' do
+          patch '/stories/1', story_updated_data.to_json
 
-        it 'returns error list'
-      end
-
-      context 'when story does not exist' do
-        it 'returns 404 status code'
+          expect(last_response.status).to eq 401
+        end
       end
     end
   end
