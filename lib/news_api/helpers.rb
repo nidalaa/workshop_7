@@ -17,7 +17,7 @@ module NewsApi
 
     def find_user(username, password)
       @user ||= User.find_by(username: username)
-      @user = nil unless @user.try(:decrypted_password) == password
+      @user = nil if @user && @user.password != password
       @user
     end
 

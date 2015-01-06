@@ -7,13 +7,13 @@ class User < ActiveRecord::Base
   has_many :votes
 
   validates :username, :presence => true
-  validates :password, :presence => true
+  validates :encrypted_password, :presence => true
 
-  def decrypted_password
-    @pass ||= Password.new(self.password)
+  def password
+    @password ||= Password.new(self.encrypted_password)
   end
 
-  def decrypted_password=(new_password)
-    self.password = Password.create(new_password)
+  def password=(new_password)
+    self.encrypted_password = Password.create(new_password)
   end
 end
