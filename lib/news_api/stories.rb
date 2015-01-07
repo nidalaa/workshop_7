@@ -5,16 +5,19 @@ module NewsApi
   class Stories < Sinatra::Base
     include NewsApi::Helpers
 
+    disable :show_exceptions
+
+    error ActiveRecord::RecordNotFound do
+      halt 404
+    end
+
     get '/stories' do
       respond_with_xml? ? Story.all.to_xml : Story.all.to_json
     end
 
     get '/stories/:id' do
-      if story = Story.find_by(id: params[:id])
-        respond_with_xml? ? story.to_xml : story.to_json
-      else
-        halt 404
-      end
+      story = Story.find(params[:id])
+      respond_with_xml? ? story.to_xml : story.to_json
     end
 
     post '/stories' do
@@ -35,7 +38,7 @@ module NewsApi
     patch '/stories/:id' do
       authenticate!
 
-      story = Story.find_by(id: params[:id])
+      story = Story.find(params[:id])
       can_update?(story)
       story.update(JSON.parse(request.body.read))
 
@@ -48,15 +51,11 @@ module NewsApi
     end
 
     get '/stories/:id/url' do
-      if story = Story.find_by(id: params[:id])
-        redirect story.url
-      else
-        halt 404
-      end
+      story = Story.find(params[:id])
+      redirect story.url
     end
 
     def can_update?(story)
-      halt 404 unless story
       if story.user_id != @user.id
         errors = { errors: { not_owner: 'You can update only your own stories' } }
         halt 422, {}, respond_with_xml? ? errors.to_xml :  errors.to_json

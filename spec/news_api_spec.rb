@@ -77,7 +77,7 @@ describe Sinatra::Application do
       context 'when story exists' do
         it 'returns 200 status code' do
           get '/stories/1/url'
-          expect(last_response).to be_redirect   # This works, but I want it to be more specific
+          expect(last_response).to be_redirect
           follow_redirect!
           expect(last_request.url).to eq 'http://www.lipsum.com/'
         end
@@ -85,7 +85,7 @@ describe Sinatra::Application do
 
       context 'when story does not exist' do
         it 'returns 404 status code' do
-          get '/stories/9999'
+          get '/stories/9999/url'
           expect(last_response.status).to eq 404
         end
       end

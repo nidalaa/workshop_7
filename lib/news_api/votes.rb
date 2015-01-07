@@ -6,11 +6,16 @@ module NewsApi
   class Votes < Sinatra::Base
     include NewsApi::Helpers
 
+    disable :show_exceptions
+
+    error ActiveRecord::RecordNotFound do
+      halt 404
+    end
+
     put '/stories/:id/vote' do
       authenticate!
-      halt 404 unless Story.find_by(id: params[:id])
 
-      vote = Vote.find_or_initialize_by(user_id: @user.id, story_id: params[:id])
+      vote = Vote.find_or_initialize_by(user_id: @user.id, story: Story.find(params[:id]))
       vote.point = JSON.parse(request.body.read)['point']
       is_new = vote.new_record?
 
@@ -24,7 +29,6 @@ module NewsApi
 
     delete '/stories/:id/vote' do
       authenticate!
-      halt 404 unless Story.find_by(id: params[:id])
 
       vote = Vote.find_by(user_id: @user.id, story_id: params[:id])
 
