@@ -12,12 +12,12 @@ module NewsApi
     end
 
     get '/stories' do
-      respond_with_xml? ? Story.all.to_xml : Story.all.to_json
+      format_response(Story.all)
     end
 
     get '/stories/:id' do
       story = Story.find(params[:id])
-      respond_with_xml? ? story.to_xml : story.to_json
+      format_response(story)
     end
 
     post '/stories' do
@@ -31,7 +31,7 @@ module NewsApi
           "Location" => "/stories/#{new_story.id}"
       else
         status 422
-        respond_with_xml? ? { errors: new_story.errors }.to_xml : { errors: new_story.errors }.to_json
+        format_response({ errors: new_story.errors })
       end
     end
 
@@ -46,7 +46,7 @@ module NewsApi
         status 200
       else
         status 422
-        respond_with_xml? ? { errors: story.errors }.to_xml : { errors: story.errors }.to_json
+        format_response({ errors: story.errors })
       end
     end
 
@@ -57,8 +57,7 @@ module NewsApi
 
     def check_update_permission(story)
       if story.user_id != @user.id
-        errors = { errors: { not_owner: 'You can update only your own stories' } }
-        halt 422, {}, respond_with_xml? ? errors.to_xml :  errors.to_json
+        halt 422, {}, format_response({ errors: { not_owner: 'You can update only your own stories' } })
       end
     end
   end

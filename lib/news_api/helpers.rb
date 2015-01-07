@@ -21,6 +21,10 @@ module NewsApi
       @user
     end
 
+    def format_response(data)
+      respond_with_xml? ? data.to_xml : data.to_json
+    end
+
     def respond_with_xml?
       request.accept.first.to_s == 'application/xml'
     end
