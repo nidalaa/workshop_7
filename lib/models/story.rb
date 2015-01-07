@@ -4,4 +4,12 @@ class Story < ActiveRecord::Base
 
   validates :title, :presence => true
   validates :url, :presence => true
+
+  def attributes
+    super.merge('score' => self.score)
+  end
+
+  def score
+    votes.sum(:point)
+  end
 end

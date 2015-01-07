@@ -7,12 +7,12 @@ describe Sinatra::Application do
     Rack::Lint.new(NewsApi::App)
   end
 
+  let (:parsed_response) { JSON.parse(last_response.body) }
+
   before(:each) do
     User.create!(id: 1, username: 'user', password: 'pass')
-
     Story.create!(id: 1, title: 'Lorem ipsum', url: 'http://www.lipsum.com/', user_id: 1)
     Story.create!(id: 2, title: 'Lorem', url: 'http://www.lorem.com/', user_id: 2)
-
     Vote.create!(id: 1, user_id: 1, story_id: 2, point: 1)
   end
 
@@ -30,8 +30,7 @@ describe Sinatra::Application do
       it 'returns list of existing stories' do
         expected_titles = ["Lorem ipsum", "Lorem"]
 
-        stories = JSON.parse(last_response.body)
-        expect(stories.map { |story| story["title"] }).to eq(expected_titles)
+        expect(parsed_response.map { |story| story["title"] }).to eq(expected_titles)
       end
 
       it 'returns xml for `application/xml` Accept header' do
@@ -50,8 +49,11 @@ describe Sinatra::Application do
         end
 
         it 'returns story`s details' do
-          story = JSON.parse(last_response.body)
-          expect(story["title"]).to eq("Lorem ipsum")
+          expect(parsed_response["title"]).to eq "Lorem ipsum"
+        end
+
+        it 'returns story`s score' do
+          expect(parsed_response["score"]).to eq 0
         end
       end
 
@@ -126,7 +128,6 @@ describe Sinatra::Application do
           end
 
           it 'returns error list' do
-            parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'url'
           end
@@ -188,7 +189,6 @@ describe Sinatra::Application do
           end
 
           it 'returns error list' do
-            parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'title'
           end
@@ -202,7 +202,6 @@ describe Sinatra::Application do
           end
 
           it 'returns error list' do
-            parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'not_owner'
           end
@@ -251,8 +250,7 @@ describe Sinatra::Application do
             end
 
             it 'increase score by one' do
-              parsed_response = JSON.parse(last_response.body)
-              expect(parsed_response['score']).to eq 1
+              expect(Story.find(1).score).to eq 1
             end
           end
 
@@ -267,8 +265,7 @@ describe Sinatra::Application do
             end
 
             it 'decrease score by one' do
-              parsed_response = JSON.parse(last_response.body)
-              expect(parsed_response['score']).to eq -1
+              expect(Story.find(1).score).to eq -1
             end
           end
         end
@@ -285,8 +282,7 @@ describe Sinatra::Application do
             end
 
             it 'does not increase score' do
-              parsed_response = JSON.parse(last_response.body)
-              expect(parsed_response['score']).to eq 1
+              expect(Story.find(2).score).to eq 1
             end
           end
 
@@ -301,8 +297,7 @@ describe Sinatra::Application do
             end
 
             it 'decrease score by two' do
-              parsed_response = JSON.parse(last_response.body)
-              expect(parsed_response['score']).to eq -1
+              expect(Story.find(2).score).to eq -1
             end
           end
         end
@@ -318,7 +313,6 @@ describe Sinatra::Application do
           end
 
           it 'returns error list' do
-            parsed_response = JSON.parse(last_response.body)
             expect(parsed_response.keys).to include 'errors'
             expect(parsed_response['errors'].keys).to include 'point'
           end
@@ -356,8 +350,7 @@ describe Sinatra::Application do
           end
 
           it 'changes score for story' do
-            parsed_response = JSON.parse(last_response.body)
-            expect(parsed_response['score']).to eq 0
+            expect(Story.find(1).score).to eq 0
           end
         end
 
@@ -409,7 +402,6 @@ describe Sinatra::Application do
         end
 
         it 'returns error list' do
-          parsed_response = JSON.parse(last_response.body)
           expect(parsed_response.keys).to include 'errors'
           expect(parsed_response['errors'].keys).to include 'encrypted_password'
         end
