@@ -75,9 +75,14 @@ describe Sinatra::Application do
 
     describe 'GET `/stories/:id/url`' do
       context 'when story exists' do
-        it 'returns 200 status code' do
-          get '/stories/1/url'
+        before { get '/stories/1/url' }
+
+        it 'redirects with 303 status code' do
           expect(last_response).to be_redirect
+          expect(last_response.status).to eq 303
+        end
+
+        it 'redirects to story url' do
           follow_redirect!
           expect(last_request.url).to eq 'http://www.lipsum.com/'
         end

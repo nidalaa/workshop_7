@@ -52,7 +52,7 @@ module NewsApi
 
     get '/stories/:id/url' do
       story = Story.find(params[:id])
-      redirect story.url
+      redirect story.url, 303
     end
 
     def check_update_permission(story)
