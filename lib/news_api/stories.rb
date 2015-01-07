@@ -37,9 +37,9 @@ module NewsApi
 
     patch '/stories/:id' do
       authenticate!
-
       story = Story.find(params[:id])
-      can_update?(story)
+      check_update_permission(story)
+
       story.update(JSON.parse(request.body.read))
 
       if story.save
@@ -55,7 +55,7 @@ module NewsApi
       redirect story.url
     end
 
-    def can_update?(story)
+    def check_update_permission(story)
       if story.user_id != @user.id
         errors = { errors: { not_owner: 'You can update only your own stories' } }
         halt 422, {}, respond_with_xml? ? errors.to_xml :  errors.to_json
