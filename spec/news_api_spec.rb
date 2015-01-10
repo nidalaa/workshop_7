@@ -202,8 +202,8 @@ describe Sinatra::Application do
         context 'when story is created by another user' do
           before { patch '/stories/2', story_updated_data.to_json }
 
-          it 'returns 422 status code' do
-            expect(last_response.status).to eq 422
+          it 'returns 403 status code' do
+            expect(last_response.status).to eq 403
           end
 
           it 'returns error list' do

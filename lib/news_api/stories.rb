@@ -49,9 +49,11 @@ module NewsApi
       redirect story.url, 303
     end
 
+    private
+
     def check_update_permission(story)
       if story.user_id != @user.id
-        halt 422, {}, format_response({ errors: { not_owner: 'You can update only your own stories' } })
+        halt 403, {}, format_response({ errors: { not_owner: 'You can update only your own stories' } })
       end
     end
   end
