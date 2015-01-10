@@ -282,8 +282,8 @@ describe Sinatra::Application do
               put '/stories/2/vote', vote_data.to_json
             end
 
-            it 'returns 200 status code' do
-              expect(last_response.status).to eq 200
+            it 'returns 204 status code' do
+              expect(last_response.status).to eq 204
             end
 
             it 'does not increase score' do
@@ -297,8 +297,8 @@ describe Sinatra::Application do
               put '/stories/2/vote', vote_data.to_json
             end
 
-            it 'returns 200 status code' do
-              expect(last_response.status).to eq 200
+            it 'returns 204 status code' do
+              expect(last_response.status).to eq 204
             end
 
             it 'decrease score by two' do
@@ -350,8 +350,8 @@ describe Sinatra::Application do
         context 'when vote is successfully deleted' do
           before { delete '/stories/2/vote' }
 
-          it 'returns 200 status code' do
-            expect(last_response.status).to eq 200
+          it 'returns 204 status code' do
+            expect(last_response.status).to eq 204
           end
 
           it 'changes score for story' do

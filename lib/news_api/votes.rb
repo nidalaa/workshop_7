@@ -14,7 +14,7 @@ module NewsApi
       is_new = vote.new_record?
 
       if vote.save
-        status (is_new ? 201 : 200)
+        status (is_new ? 201 : 204)
       else
         status 422
         { errors: vote.errors }.to_json
