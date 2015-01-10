@@ -24,14 +24,9 @@ module NewsApi
     delete '/stories/:id/vote' do
       authenticate!
 
-      vote = Vote.find_by(user_id: @user.id, story_id: params[:id])
-
-      if vote
-        vote.destroy
-        status 200
-      else
-        halt 404
-      end
+      vote = Vote.find_by!(user_id: @user.id, story_id: params[:id])
+      vote.destroy
+      status 204
     end
 
   end
