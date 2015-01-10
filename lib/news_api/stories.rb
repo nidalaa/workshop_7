@@ -2,14 +2,8 @@ require_relative '../models/story'
 require_relative 'helpers'
 
 module NewsApi
-  class Stories < Sinatra::Base
+  class Stories < Base
     include NewsApi::Helpers
-
-    disable :show_exceptions
-
-    error ActiveRecord::RecordNotFound do
-      halt 404
-    end
 
     get '/stories' do
       format_response(Story.all)

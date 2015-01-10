@@ -7,7 +7,7 @@ describe Sinatra::Application do
     Rack::Lint.new(NewsApi::App)
   end
 
-  let (:parsed_response) { JSON.parse(last_response.body) }
+  let(:parsed_response) { JSON.parse(last_response.body) }
 
   before(:each) do
     User.create!(id: 1, username: 'user', password: 'pass')
@@ -17,8 +17,8 @@ describe Sinatra::Application do
   end
 
   describe 'stories' do
-    let (:story_data) { { title: 'Title', url: 'http://www.url.com/' } }
-    let (:story_updated_data) { { title: 'Edited title' } }
+    let(:story_data) { { title: 'Title', url: 'http://www.url.com/' } }
+    let(:story_updated_data) { { title: 'Edited title' } }
 
     describe 'GET `/stories`' do
       before { get '/stories' }

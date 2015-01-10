@@ -3,14 +3,8 @@ require_relative '../models/vote'
 require_relative 'helpers'
 
 module NewsApi
-  class Votes < Sinatra::Base
+  class Votes < Base
     include NewsApi::Helpers
-
-    disable :show_exceptions
-
-    error ActiveRecord::RecordNotFound do
-      halt 404
-    end
 
     put '/stories/:id/vote' do
       authenticate!
