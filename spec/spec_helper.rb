@@ -1,6 +1,8 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'news_api'
 require 'models/story'
+require 'models/user'
+require 'models/vote'
 require 'rack/test'
 require 'database_cleaner'
 

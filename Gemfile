@@ -4,6 +4,7 @@ gem 'sinatra'
 gem 'activerecord', '~> 4.2.0'
 gem 'sqlite3'
 gem 'dotenv', '~> 1.0.2'
+gem 'bcrypt-ruby', '~> 3.1.5'
 
 group :test do
   gem 'rspec'
