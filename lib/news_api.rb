@@ -15,6 +15,11 @@ module NewsApi
     use NewsApi::Votes
     use NewsApi::Users
 
+    get '/' do
+      send_file 'lib/documentation.html'
+    end
+
+
     run! if app_file == $0
   end
 end

@@ -1,0 +1,163 @@
+<h1> NEWS API </h1>
+
+  <h2> stories { title: 'Title', url: 'http://www.url.com/', score: 22(READ ONLY) }</h2>
+    <ul>
+      <li>GET `/stories`</li>
+        <ul>
+          <li>returns 200 status code</li>
+          <li>returns list of existing stories</li>
+          <li>returns xml for `application/xml` Accept header</li>
+        </ul>
+      <li>GET `/stories/{id}`</li>
+        <ul>
+          <li>when story exists</li>
+            <ul>
+              <li>returns 200 status code</li>
+              <li>returns story`s details</li>
+              <li>returns story`s score</li>
+          </ul>
+          <li>with `application/xml` Accept header</li>
+            returns xml
+          <li>when story does not exist</li>
+            returns 404 status code
+        </ul>
+      <li>GET `/stories/:id/url`</li>
+        <ul>
+        <li>when story exists</li>
+          <ul>
+            <li>redirects with 303 status code</li>
+            <li>redirects to story url</li>
+          </ul>
+        <li>when story does not exist</li>
+          returns 404 status code
+        </ul>
+      <li>POST `/stories`</li>
+        <ul>
+          <li>with authenticated user</li>
+            <ul>
+              <li>when story is successfully created</li>
+                <ul>
+                  <li>returns 201 status code</li>
+                  <li>returns location header with new story</li>
+                  <li>adds record to database</li>
+                  <li>adds record for authenticated user</li>
+                </ul>
+              <li>when story cannot be created</li>
+                <ul>
+                  <li>returns 422 status code</li>
+                  <li>returns error list</li>
+                </ul>
+              <li>with `application/xml` Accept header</li>
+                returns xml
+            </ul>
+          <li>without authenticated user</li>
+            <ul>
+              <li>adds `WWW-Authenticate` header to response</li>
+              <li>returns 401 status code for wrong credentials</li>
+              <li>returns 401 status code for request with empty credentials</li>
+            </ul>
+        </ul>
+      <li>PATCH `/stories/{id}`</li>
+        <ul>
+          <li>with authenticated user</li>
+            <ul>
+              <li>when story is successfully updated</li>
+                <ul>
+                  <li>returns 200 status code</li>
+                  <li>changes provided property</li>
+                </ul>
+              <li>when story cannot be updated</li>
+                <ul>
+                  <li>returns 422 status code</li>
+                  <li>returns error list</li>
+                </ul>
+              <li>when story is created by another user</li>
+                <ul>
+                  <li>returns 403 status code</li>
+                  <li>returns error list</li>
+                </ul>
+              <li>with `application/xml` Accept header</li>
+                returns xml
+              <li>when story does not exist</li>
+                returns 404 status code
+            </ul>
+          <li>without authenticated user</li>
+            returns 401 status code
+        </ul>
+    </ul>
+
+  <h2> votes { point: 1 } OR { point: -1 }</h2>
+    <ul>
+      <li>PUT `/stories/{id}/vote`</li>
+        <ul>
+        <li>with authenticated user</li>
+          <ul>
+          <li>when vote can be added</li>
+            <ul>
+              <li>upvoting ({ point: 1 })</li>
+                <ul>
+                  <li>returns 201 status code</li>
+                  <li>increase score by one</li>
+                </ul>
+              <li>downvoting ({ point: -1 })</li>
+                <ul>
+                  <li>returns 201 status code</li>
+                  <li>decrease score by one</li>
+                </ul>
+            </ul>
+          <li>when vote for particular user already exists <b>and equals 1</b></li>
+           <ul>
+              <li>upvoting ({ point: 1 })</li>
+                <ul>
+                  <li>returns 204 status code</li>
+                  <li>does not increase score</li>
+                </ul>
+              <li>downvoting ({ point: -1 })</li>
+                <ul>
+                  <li>returns 204 status code</li>
+                  <li>decrease score by two</li>
+                </ul>
+            </ul>
+          <li>when vote cannot be added ({ point: 99 })</li>
+            <ul>
+              <li>returns 422 status code</li>
+              <li>returns error list</li>
+            </ul>
+          <li>when story does not exist</li>
+            returns 404 status code
+          </ul>
+        <li>without authenticated user</li>
+          returns 401 status code
+        </ul>
+      <li>DELETE `/stories/{id}/vote`</li>
+        <ul>
+        <li>with authenticated user</li>
+          <ul>
+            <li>when vote is successfully deleted</li>
+              <ul>
+                <li>returns 204 status code</li>
+                <li>changes score for story</li>
+              </ul>
+            <li>when vote does not exist</li>
+              returns 404 status code
+            <li>when story does not exist</li>
+              returns 404 status code
+          </ul>
+        <li>without authenticated user</li>
+          returns 401 status code
+        </ul>
+    </ul>
+
+  <h2> users { username: "user", password: "secret_password" } </h2>
+    <ul>
+    <li>POST `/users`</li>
+      <ul>
+        <li>when user is successfully created</li>
+          returns 201 status code
+        <li>when user cannot be created</li>
+          <ul>
+            <li>returns 422 status code</li>
+            <li>returns error list</li>
+          </ul>
+      </ul>
+    </ul>
