@@ -16,7 +16,7 @@ module NewsApi
     use NewsApi::Users
 
     get '/' do
-      send_file 'lib/documentation.html'
+      send_file 'documentation.html'
     end
 
 
